@@ -1,0 +1,53 @@
+Checks:
+  - "-*"
+
+  # bug catching
+  - "bugprone-*"
+  - "clang-analyzer-*"
+  - "misc-*"
+  - "performance-*"
+  - "portability-*"
+  - "readability-*"
+
+  # allow some stuff
+  - "-bugprone-easily-swappable-parameters"
+  - "-misc-no-recursion"
+  - "-misc-use-anonymous-namespace"
+  - "-misc-use-internal-linkage"
+  - "-readability-identifier-length"
+  - "-readability-magic-numbers"
+  - "-readability-math-missing-parentheses"
+  - "-readability-non-const-parameter"
+
+  # explicitly allowd in kernel style
+  - "-bugprone-assignment-in-if-condition"
+  - "-bugprone-inc-dec-in-conditions"
+  - "-readability-braces-around-statements"
+  - "-readability-else-after-return"
+  - "-readability-uppercase-literal-suffix"
+
+CheckOptions:
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.ConstantCase: lower_case
+  readability-identifier-naming.StructCase: lower_case
+  readability-identifier-naming.UnionCase: lower_case
+  readability-identifier-naming.EnumCase: lower_case
+  readability-identifier-naming.TypedefCase: lower_case
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+
+  readability-implicit-bool-conversion.AllowIntegerConditions: "true"
+  readability-implicit-bool-conversion.AllowPointerConditions: "true"
+  readability-implicit-bool-conversion.AllowLogicalOperatorConversion: "true"
+
+  bugprone-unused-return-value.CheckedFunctions: ".*"
+  bugprone-unused-return-value.AllowCastToVoid: "true"
+  misc-unused-parameters.AllowUnusedParameters: "false"
+
+# C only
+HeaderFileExtensions: ['h']
+ImplementationFileExtensions: ['c']
+
+FormatStyle: none   # handled by .clang-format
