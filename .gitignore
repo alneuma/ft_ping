@@ -53,3 +53,12 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# executable
+ft_ping
+
+# compile db
+compile_commands.json
+
+# merge artifacts
+*.orig

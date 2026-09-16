@@ -13,7 +13,7 @@ OBJ			:= $(addprefix $(OBJ_DIR)/, $(OBJ))
 
 DEP			:= $(OBJ:%.o=%.d)
 
-CC			:= cc
+CC			:= clang
 CFLAGS		:=
 CFLAGS		+= -std=c17
 
@@ -26,6 +26,9 @@ LDFLAGS		:=
 
 RM			:= rm -f
 RMDIR		:= rm -rf
+
+CLANG_FORMAT	:= clang-format
+CFMT_SPECS	:= '*.c' '*.h'
 
 DIR_DUP		= mkdir -p $(@D)
 
@@ -82,6 +85,12 @@ $(OBJ_DIR)/%.o: %.c
 
 -include $(DEP)
 
+format-check:
+	git ls-files -z $(CFMT_SPECS) | xargs -0 -r $(CLANG_FORMAT) -n --Werror
+
+format:
+	git ls-files -z $(CFMT_SPECS) | xargs -0 -r $(CLANG_FORMAT) -i
+
 clean:
 	$(RM) $(DEP) $(OBJ)
 	$(RMDIR) $(OBJ_DIR)
@@ -91,4 +100,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re format-check format

@@ -8,8 +8,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check formatting
-        run: |
-          git ls-files '*.c' '*.h' | xargs -r clang-format --dry-run --Werror
+        run: make format-check
 
       - name: Build (strict)
         run: make fclean all BUILD=dev CFLAGS+="-Wunused-parameter -Wunused-function"
