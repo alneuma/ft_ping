@@ -11,7 +11,4 @@ jobs:
         run: make format-check
 
       - name: Build (strict)
-        run: make fclean all BUILD=dev CFLAGS+="-Wunused-parameter -Wunused-function"
-
-      # - name: Smoke test
-      #   run: ./ft_ping --hel
+        run: make fclean all BUILD=strict
