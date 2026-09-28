@@ -1,17 +1,30 @@
+BUILD			?= dev
+
 NAME		:= ft_ping
+TEST_NAME	:= ft_ping_test
 
 SRC_DIR		:= src
+TEST_DIR	:= test
 INC_DIR		:= inc
-OBJ_DIR		:= obj
+OBJ_DIR		:= obj/$(BUILD)
 
-vpath %.c $(SRC_DIR)
+# normal source and object files
 SRC			:=
+vpath %.c $(SRC_DIR)
 SRC			+= main.c
 
 OBJ			:= $(SRC:%.c=%.o)
 OBJ			:= $(addprefix $(OBJ_DIR)/, $(OBJ))
-
 DEP			:= $(OBJ:%.o=%.d)
+
+# test source and object files
+TEST_SRC	:= $(filter-out main.c,$(SRC))
+vpath %.c $(TEST_DIR)
+TEST_SRC	+= test.c
+
+OBJ_TEST	:= $(TEST_SRC:%.c=%.o)
+OBJ_TEST	:= $(addprefix $(OBJ_DIR)/, $(OBJ_TEST))
+DEP_TEST	:= $(OBJ_TEST:%.o=%.d)
 
 CC			:= clang
 CFLAGS		:=
@@ -22,6 +35,9 @@ CPPFLAGS	+= -D_POSIX_C_SOURCE=200809L
 CPPFLAGS	+= -MMD
 CPPFLAGS	+= -MP
 CPPFLAGS	+= $(addprefix -I, $(INC_DIR))
+
+CMOCKA_LIBS	:=
+CMOCKA_LIBS	+= -lcmocka
 
 LDFLAGS		:=
 
@@ -34,8 +50,6 @@ CFMT_SPECS		:= '*.c' '*.h'
 DIR_DUP			= mkdir -p $(@D)
 
 # build options
-
-BUILD			?= dev
 
 STRICT_CFLAGS	:=
 STRICT_CFLAGS	+= -Wall
@@ -133,7 +147,7 @@ else ifeq ($(BUILD), dev)
 	CFLAGS		+= $(DEBUG_CFLAGS)
 	CFLAGS		+= -O0
 else
-$(error Invalid BUILD='$(BUILD)' (expected 'dev' or 'prod'))
+$(error Invalid BUILD='$(BUILD)' (expected 'dev', 'test', 'strict' or 'prod',))
 endif
 
 # runtime options
@@ -147,11 +161,21 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^
 
+test:
+	$(MAKE) BUILD=test $(TEST_NAME)
+	ASAN_OPTIONS="$(ASAN_OPTS)" \
+	UBSAN_OPTIONS="$(UBSAN_OPTS)" \
+	./$(TEST_NAME)
+
+$(TEST_NAME): $(OBJ_TEST)
+	$(CC) $(LDFLAGS) -o $@ $^ $(CMOCKA_LIBS)
+
 $(OBJ_DIR)/%.o: %.c
 	$(DIR_DUP)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 -include $(DEP)
+-include $(DEP_TEST)
 
 format-check:
 	git ls-files -z $(CFMT_SPECS) | xargs -0 -r $(CLANG_FORMAT) -n --Werror
@@ -165,7 +189,8 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) $(TEST_NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re format-check format
+.PHONY: all clean fclean re format-check format test
