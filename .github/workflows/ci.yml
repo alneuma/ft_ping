@@ -4,11 +4,26 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: alpine:3.24
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apk add --no-cache \
+          make \
+          cmocka-dev \
+          build-base \
+          clang \
+          compiler-rt \
+          clang22-extra-tools
 
       - name: Check formatting
         run: make format-check
 
       - name: Build (strict)
-        run: make fclean all BUILD=strict
+        run: make all BUILD=strict
+
+      - name: Test
+        run: make test
